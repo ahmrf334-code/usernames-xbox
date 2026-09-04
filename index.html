@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فحص أسماء Xbox</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .xbox-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #107c10 0%, #50e6ff 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            box-shadow: 0 10px 30px rgba(16, 124, 16, 0.3);
+        }
+
+        h1 {
+            color: #1a1a2e;
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .info-box {
+            background: #f0f8ff;
+            border-right: 4px solid #107c10;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #1a1a2e;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #107c10;
+            box-shadow: 0 0 0 3px rgba(16, 124, 16, 0.1);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #107c10;
+            box-shadow: 0 0 0 3px rgba(16, 124, 16, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-check {
+            background: linear-gradient(135deg, #107c10 0%, #50e6ff 100%);
+            color: white;
+            flex: 2;
+        }
+
+        .btn-check:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 124, 16, 0.3);
+        }
+
+        .btn-check:active {
+            transform: translateY(0);
+        }
+
+        .btn-clear {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-clear:hover {
+            background: #e0e0e0;
+        }
+
+        .results-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .result-item {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-right: 4px solid #e0e0e0;
+        }
+
+        .result-item.available {
+            border-right-color: #107c10;
+            background: #f0fdf4;
+        }
+
+        .result-item.unavailable {
+            border-right-color: #dc2626;
+            background: #fef2f2;
+        }
+
+        .result-item.error {
+            border-right-color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        .result-username {
+            font-weight: 600;
+            color: #1a1a2e;
+            font-size: 15px;
+        }
+
+        .result-status {
+            font-size: 20px;
+        }
+
+        .download-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #107c10 0%, #50e6ff 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 124, 16, 0.3);
+        }
+
+        .loading {
+            text-align: center;
+            color: #107c10;
+            font-weight: 600;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f0f0f0;
+            border-top-color: #107c10;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .stats {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            justify-content: space-around;
+            text-align: center;
+        }
+
+        .stat-item {
+            flex: 1;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 8px;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #107c10;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .xbox-logo {
+                width: 60px;
+                height: 60px;
+                font-size: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="xbox-logo">🎮</div>
+            <h1>فحص أسماء Xbox</h1>
+            <p class="subtitle">تحقق من توفر أسماء مستخدمين Xbox بسهولة</p>
+        </div>
+
+        <div class="info-box">
+            ✅ <strong>صيغ مقبولة:</strong><br>
+            • 4 أحرف فقط (abcd)<br>
+            • 3 حروف + رقم (abc1)
+        </div>
+
+        <div class="form-group">
+            <label for="usernames">أدخل أسماء المستخدمين:</label>
+            <textarea id="usernames" placeholder="أدخل كل اسم في سطر منفصل&#10;مثال:&#10;abcd&#10;xy2z&#10;test"></textarea>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-check" onclick="checkUsernames()">🔍 فحص الأسماء</button>
+            <button class="btn-clear" onclick="clearForm()">🗑️ مسح</button>
+        </div>
+
+        <div class="loading" id="loading">
+            جاري الفحص<span class="spinner"></span>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <h2 style="color: #1a1a2e; margin-bottom: 15px; font-size: 18px;">📊 النتائج</h2>
+            
+            <div class="stats" id="stats"></div>
+
+            <div id="resultsList"></div>
+
+            <button class="download-btn" onclick="downloadResults()">⬇️ تحميل النتائج</button>
+        </div>
+    </div>
+
+    <script>
+        let results = [];
+
+        function isValidFormat(username) {
+            if (username.length !== 4) return false;
+            
+            // 4 أحرف فقط
+            if (/^[a-zA-Z]{4}$/.test(username)) return true;
+            
+            // 3 حروف + رقم واحد
+            const letters = (username.match(/[a-zA-Z]/g) || []).length;
+            const digits = (username.match(/\d/g) || []).length;
+            return letters === 3 && digits === 1;
+        }
+
+        function checkUsernames() {
+            const input = document.getElementById('usernames').value.trim();
+            if (!input) {
+                alert('الرجاء إدخال أسماء مستخدمين');
+                return;
+            }
+
+            const usernames = input.split('\n').map(name => name.trim()).filter(name => name);
+            results = [];
+
+            document.getElementById('loading').classList.add('show');
+
+            // محاكاة الفحص
+            setTimeout(() => {
+                usernames.forEach(username => {
+                    if (!isValidFormat(username)) {
+                        results.push({
+                            username,
+                            status: '⚠️',
+                            message: 'صيغة غير صحيحة',
+                            type: 'error'
+                        });
+                    } else {
+                        // محاكاة عشوائية للتوفر
+                        const isAvailable = Math.random() > 0.5;
+                        results.push({
+                            username,
+                            status: isAvailable ? '✅' : '❌',
+                            message: isAvailable ? 'متوفر' : 'غير متوفر',
+                            type: isAvailable ? 'available' : 'unavailable'
+                        });
+                    }
+                });
+
+                displayResults();
+                document.getElementById('loading').classList.remove('show');
+            }, 1500);
+        }
+
+        function displayResults() {
+            const resultsList = document.getElementById('resultsList');
+            const statsDiv = document.getElementById('stats');
+            
+            resultsList.innerHTML = '';
+            
+            results.forEach(result => {
+                const item = document.createElement('div');
+                item.className = `result-item ${result.type}`;
+                item.innerHTML = `
+                    <span class="result-username">${result.username}</span>
+                    <span class="result-status">${result.status} ${result.message}</span>
+                `;
+                resultsList.appendChild(item);
+            });
+
+            // إحصائيات
+            const available = results.filter(r => r.type === 'available').length;
+            const unavailable = results.filter(r => r.type === 'unavailable').length;
+            const errors = results.filter(r => r.type === 'error').length;
+
+            statsDiv.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-number" style="color: #107c10;">${available}</div>
+                    <div class="stat-label">متوفر</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" style="color: #dc2626;">${unavailable}</div>
+                    <div class="stat-label">غير متوفر</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" style="color: #f59e0b;">${errors}</div>
+                    <div class="stat-label">أخطاء</div>
+                </div>
+            `;
+
+            document.getElementById('resultsSection').classList.add('show');
+        }
+
+        function downloadResults() {
+            if (results.length === 0) {
+                alert('لا توجد نتائج للتحميل');
+                return;
+            }
+
+            let content = 'نتائج فحص أسماء Xbox\n';
+            content += '=' .repeat(40) + '\n\n';
+
+            results.forEach(result => {
+                content += `${result.username} ${result.status} ${result.message}\n`;
+            });
+
+            content += '\n' + '='.repeat(40) + '\n';
+            content += `تاريخ: ${new Date().toLocaleString('ar-SA')}\n`;
+
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `xbox-results-${Date.now()}.txt`;
+            link.click();
+        }
+
+        function clearForm() {
+            document.getElementById('usernames').value = '';
+            document.getElementById('resultsSection').classList.remove('show');
+            results = [];
+        }
+
+        // اختبار سريع عند تحميل الصفحة
+        console.log('تطبيق فحص أسماء Xbox جاهز!');
+    </script>
+</body>
+</html>
