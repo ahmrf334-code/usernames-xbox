@@ -55,6 +55,126 @@
             }
         }
 
+        /* صفحة تسجيل الدخول */
+        .login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .login-screen.hidden {
+            display: none;
+        }
+
+        .lock-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .login-screen h1 {
+            color: #1a1a2e;
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .login-screen p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .password-input-group {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .password-input-group input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            text-align: center;
+            letter-spacing: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .password-input-group input:focus {
+            outline: none;
+            border-color: #107c10;
+            box-shadow: 0 0 0 3px rgba(16, 124, 16, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #107c10 0%, #50e6ff 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 124, 16, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 13px;
+            margin-top: 10px;
+            display: none;
+            animation: shake 0.4s ease;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(-5px);
+            }
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        /* صفحة التطبيق */
+        .app-screen {
+            display: none;
+        }
+
+        .app-screen.show {
+            display: block;
+        }
+
         .header {
             text-align: center;
             margin-bottom: 30px;
@@ -84,6 +204,24 @@
             color: #666;
             font-size: 14px;
             margin-bottom: 5px;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #991b1b;
         }
 
         .install-banner {
@@ -372,70 +510,159 @@
                 height: 60px;
                 font-size: 30px;
             }
+
+            .logout-btn {
+                top: 10px;
+                right: 10px;
+                padding: 6px 10px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="install-banner" id="installBanner">
-            📥 ركب التطبيق على جهازك!
-            <button onclick="installApp()">تثبيت الآن</button>
-        </div>
-
-        <div class="update-banner" id="updateBanner">
-            🔄 تحديث جديد متاح!
-            <button onclick="updateApp()">تحديث</button>
-        </div>
-
-        <div class="header">
-            <div class="xbox-logo">🎮</div>
-            <h1>فحص أسماء Xbox</h1>
-            <p class="subtitle">تحقق من توفر أسماء مستخدمين Xbox بسهولة</p>
-        </div>
-
-        <div class="info-box">
-            ✅ <strong>صيغ مقبولة:</strong><br>
-            • 4 أحرف فقط (abcd)<br>
-            • 3 حروف + رقم (abc1)
-        </div>
-
-        <div class="form-group">
-            <label for="usernames">أدخل أسماء المستخدمين:</label>
-            <textarea id="usernames" placeholder="أدخل كل ا��م في سطر منفصل&#10;مثال:&#10;abcd&#10;xy2z&#10;test"></textarea>
-        </div>
-
-        <div class="button-group">
-            <button class="btn-check" onclick="checkUsernames()">🔍 فحص الأسماء</button>
-            <button class="btn-clear" onclick="clearForm()">🗑️ مسح</button>
-        </div>
-
-        <div class="loading" id="loading">
-            جاري الفحص<span class="spinner"></span>
-        </div>
-
-        <div class="results-section" id="resultsSection">
-            <h2 style="color: #1a1a2e; margin-bottom: 15px; font-size: 18px;">📊 النتائج</h2>
+        <!-- صفحة تسجيل الدخول -->
+        <div class="login-screen" id="loginScreen">
+            <div class="lock-icon">🔒</div>
+            <h1>تطبيق خاص</h1>
+            <p>أدخل كلمة المرور للدخول</p>
             
-            <div class="stats" id="stats"></div>
+            <div class="password-input-group">
+                <input 
+                    type="password" 
+                    id="passwordInput" 
+                    placeholder="••••••••"
+                    onkeypress="handlePasswordKeypress(event)"
+                >
+                <div class="error-message" id="errorMessage">❌ كلمة المرور غير صحيحة!</div>
+            </div>
 
-            <div id="resultsList"></div>
+            <button class="login-btn" onclick="checkPassword()">دخول</button>
+        </div>
 
-            <button class="download-btn" onclick="downloadResults()">⬇️ تحميل النتائج</button>
+        <!-- صفحة التطبيق -->
+        <div class="app-screen" id="appScreen">
+            <button class="logout-btn" onclick="logout()">تسجيل خروج</button>
+
+            <div class="install-banner" id="installBanner">
+                📥 ركب التطبيق على جهازك!
+                <button onclick="installApp()">تثبيت الآن</button>
+            </div>
+
+            <div class="update-banner" id="updateBanner">
+                🔄 تحديث جديد متاح!
+                <button onclick="updateApp()">تحديث</button>
+            </div>
+
+            <div class="header">
+                <div class="xbox-logo">🎮</div>
+                <h1>فحص أسماء Xbox</h1>
+                <p class="subtitle">تحقق من توفر أسماء مستخدمين Xbox بسهولة</p>
+            </div>
+
+            <div class="info-box">
+                ✅ <strong>صيغ مقبولة:</strong><br>
+                • 4 أحرف فقط (abcd)<br>
+                • 3 حروف + رقم (abc1)
+            </div>
+
+            <div class="form-group">
+                <label for="usernames">أدخل أسماء المستخدمين:</label>
+                <textarea id="usernames" placeholder="أدخل كل اسم في سطر منفصل&#10;مثال:&#10;abcd&#10;xy2z&#10;test"></textarea>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-check" onclick="checkUsernames()">🔍 فحص الأسماء</button>
+                <button class="btn-clear" onclick="clearForm()">🗑️ مسح</button>
+            </div>
+
+            <div class="loading" id="loading">
+                جاري الفحص<span class="spinner"></span>
+            </div>
+
+            <div class="results-section" id="resultsSection">
+                <h2 style="color: #1a1a2e; margin-bottom: 15px; font-size: 18px;">📊 النتائج</h2>
+                
+                <div class="stats" id="stats"></div>
+
+                <div id="resultsList"></div>
+
+                <button class="download-btn" onclick="downloadResults()">⬇️ تحميل النتائج</button>
+            </div>
         </div>
     </div>
 
     <script>
         let results = [];
         let deferredPrompt = null;
+        let isAuthenticated = false;
+
+        // كلمة المرور (عدّلها حسب ما تريد)
+        const PASSWORD = "ahmad2024";
+
+        // التحقق من جلسة المستخدم
+        window.addEventListener('load', () => {
+            const sessionPassword = sessionStorage.getItem('xboxAppPassword');
+            if (sessionPassword === PASSWORD) {
+                showApp();
+            } else {
+                showLogin();
+            }
+        });
+
+        function handlePasswordKeypress(event) {
+            if (event.key === 'Enter') {
+                checkPassword();
+            }
+        }
+
+        function checkPassword() {
+            const passwordInput = document.getElementById('passwordInput');
+            const errorMessage = document.getElementById('errorMessage');
+            const password = passwordInput.value;
+
+            if (password === PASSWORD) {
+                errorMessage.classList.remove('show');
+                sessionStorage.setItem('xboxAppPassword', PASSWORD);
+                showApp();
+            } else {
+                errorMessage.classList.add('show');
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        }
+
+        function showLogin() {
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('appScreen').classList.remove('show');
+            document.getElementById('passwordInput').focus();
+        }
+
+        function showApp() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('appScreen').classList.add('show');
+            registerServiceWorker();
+            isAuthenticated = true;
+        }
+
+        function logout() {
+            if (confirm('هل تريد تسجيل الخروج؟')) {
+                sessionStorage.removeItem('xboxAppPassword');
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('usernames').value = '';
+                document.getElementById('resultsSection').classList.remove('show');
+                results = [];
+                showLogin();
+            }
+        }
 
         // تسجيل Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js')
                     .then(registration => {
                         console.log('✅ Service Worker مسجل بنجاح');
                         
-                        // التحقق من التحديثات
                         registration.addEventListener('updatefound', () => {
                             const newWorker = registration.installing;
                             newWorker.addEventListener('statechange', () => {
@@ -445,8 +672,8 @@
                             });
                         });
                     })
-                    .catch(error => console.log('❌ خطأ في تسجيل Service Worker:', error));
-            });
+                    .catch(error => console.log('❌ خطأ:', error));
+            }
         }
 
         // التعامل مع حدث التثبيت
@@ -467,9 +694,7 @@
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
-                        console.log('✅ المستخدم وافق على التثبيت');
-                    } else {
-                        console.log('❌ المستخدم رفض التثبيت');
+                        console.log('✅ تم التثبيت');
                     }
                     deferredPrompt = null;
                 });
@@ -490,10 +715,8 @@
         function isValidFormat(username) {
             if (username.length !== 4) return false;
             
-            // 4 أحرف فقط
             if (/^[a-zA-Z]{4}$/i.test(username)) return true;
             
-            // 3 حروف + رقم واحد
             const letters = (username.match(/[a-zA-Z]/gi) || []).length;
             const digits = (username.match(/\d/g) || []).length;
             return letters === 3 && digits === 1;
@@ -511,7 +734,6 @@
 
             document.getElementById('loading').classList.add('show');
 
-            // محاكاة الفحص
             setTimeout(() => {
                 usernames.forEach(username => {
                     if (!isValidFormat(username)) {
@@ -522,7 +744,6 @@
                             type: 'error'
                         });
                     } else {
-                        // محاكاة عشوائية للتوفر
                         const isAvailable = Math.random() > 0.5;
                         results.push({
                             username,
@@ -554,7 +775,6 @@
                 resultsList.appendChild(item);
             });
 
-            // إحصائيات
             const available = results.filter(r => r.type === 'available').length;
             const unavailable = results.filter(r => r.type === 'unavailable').length;
             const errors = results.filter(r => r.type === 'error').length;
@@ -605,10 +825,6 @@
             document.getElementById('resultsSection').classList.remove('show');
             results = [];
         }
-
-        // رسالة الترحيب
-        console.log('🎮 مرحباً بك في تطبيق فحص أسماء Xbox!');
-        console.log('✅ يمكنك الآن تثبيت التطبيق على جهازك');
     </script>
 </body>
 </html>
