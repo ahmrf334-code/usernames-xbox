@@ -7,8 +7,20 @@ class XboxUsernameChecker:
         self.api_url = "https://xboxlive.com/api/v2/accounts/search"
         self.results = []
     
+    def is_valid_length(self, username: str) -> bool:
+        """التحقق من أن اسم المستخدم يتكون من 4 أحرف فقط"""
+        return len(username) == 4
+    
     def check_username(self, username: str) -> Dict[str, str]:
         """فحص توفر اسم مستخدم واحد"""
+        # التحقق من الطول أولاً
+        if not self.is_valid_length(username):
+            return {
+                "username": username,
+                "available": None,
+                "status": "⚠️ يجب أن يكون الاسم 4 أحرف فقط"
+            }
+        
         try:
             # محاكاة API للتحقق من توفر الاسم
             response = requests.get(
@@ -46,7 +58,7 @@ class XboxUsernameChecker:
     def display_results(self):
         """عرض النتائج بشكل جميل"""
         print("\n" + "="*50)
-        print("نتائج فحص أسماء Xbox")
+        print("نتائج فحص أسماء Xbox الرباعية")
         print("="*50 + "\n")
         
         for result in self.results:
@@ -56,7 +68,8 @@ class XboxUsernameChecker:
     
     def start(self):
         """بدء التطبيق"""
-        print("\n🎮 مرحباً بك في أداة فحص أسماء Xbox\n")
+        print("\n🎮 مرحباً بك في أداة فحص أسماء Xbox الرباعية\n")
+        print("⚠️  ملاحظة: يجب أن تكون الأسماء 4 أحرف فقط\n")
         print("أدخل أسماء المستخدمين (واحد في كل سطر)")
         print("اضغط Enter مرتين عند الانتهاء\n")
         
