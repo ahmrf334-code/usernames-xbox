@@ -1,5 +1,6 @@
 import requests
 import json
+import re
 from typing import List, Dict
 
 class XboxUsernameChecker:
@@ -7,18 +8,33 @@ class XboxUsernameChecker:
         self.api_url = "https://xboxlive.com/api/v2/accounts/search"
         self.results = []
     
-    def is_valid_length(self, username: str) -> bool:
-        """التحقق من أن اسم المستخدم يتكون من 4 أحرف فقط"""
-        return len(username) == 4
+    def is_valid_format(self, username: str) -> bool:
+        """التحقق من أن الاسم إما:
+        - 4 أحرف فقط
+        - 3 حروف + رقم واحد"""
+        
+        # التحقق من أن الطول 4
+        if len(username) != 4:
+            return False
+        
+        # حالة 1: 4 أحرف فقط
+        if username.isalpha():
+            return True
+        
+        # حالة 2: 3 حروف + رقم واحد
+        letter_count = sum(1 for c in username if c.isalpha())
+        digit_count = sum(1 for c in username if c.isdigit())
+        
+        return letter_count == 3 and digit_count == 1
     
     def check_username(self, username: str) -> Dict[str, str]:
         """فحص توفر اسم مستخدم واحد"""
-        # التحقق من الطول أولاً
-        if not self.is_valid_length(username):
+        # التحقق من الصيغة أولاً
+        if not self.is_valid_format(username):
             return {
                 "username": username,
                 "available": None,
-                "status": "⚠️ يجب أن يكون الاسم 4 أحرف فقط"
+                "status": "⚠️ يجب أن يكون: 4 أحرف أو 3 حروف + رقم واحد"
             }
         
         try:
@@ -44,7 +60,7 @@ class XboxUsernameChecker:
             return {
                 "username": username,
                 "available": None,
-                "status": f"⚠️ خطأ: {str(e)}"
+                "status": f"⚠️ ��طأ: {str(e)}"
             }
     
     def check_multiple(self, usernames: List[str]) -> List[Dict]:
@@ -58,7 +74,7 @@ class XboxUsernameChecker:
     def display_results(self):
         """عرض النتائج بشكل جميل"""
         print("\n" + "="*50)
-        print("نتائج فحص أسماء Xbox الرباعية")
+        print("نتائج فحص أسماء Xbox")
         print("="*50 + "\n")
         
         for result in self.results:
@@ -68,8 +84,10 @@ class XboxUsernameChecker:
     
     def start(self):
         """بدء التطبيق"""
-        print("\n🎮 مرحباً بك في أداة فحص أسماء Xbox الرباعية\n")
-        print("⚠️  ملاحظة: يجب أن تكون الأسماء 4 أحرف فقط\n")
+        print("\n🎮 مرحباً بك في أداة فحص أسماء Xbox\n")
+        print("✅ صيغ مقبولة:")
+        print("   • 4 أحرف فقط (مثل: abcd, test, xyzw)")
+        print("   • 3 حروف + رقم واحد (مثل: abc1, xy2z, tes3)\n")
         print("أدخل أسماء المستخدمين (واحد في كل سطر)")
         print("اضغط Enter مرتين عند الانتهاء\n")
         
