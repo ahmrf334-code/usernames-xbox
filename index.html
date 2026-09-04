@@ -2,13 +2,24 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Xbox Names">
+    <meta name="theme-color" content="#107c10">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23107c10' width='192' height='192' rx='45'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='120' fill='white' font-family='Arial'>🎮</text></svg>">
     <title>فحص أسماء Xbox</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
         }
 
         body {
@@ -19,6 +30,8 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
+            padding-top: max(20px, env(safe-area-inset-top));
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
         }
 
         .container {
@@ -73,6 +86,34 @@
             margin-bottom: 5px;
         }
 
+        .install-banner {
+            background: linear-gradient(135deg, #107c10 0%, #50e6ff 100%);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            display: none;
+            text-align: center;
+        }
+
+        .install-banner.show {
+            display: block;
+        }
+
+        .install-banner button {
+            background: white;
+            color: #107c10;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            width: 100%;
+            font-size: 12px;
+        }
+
         .info-box {
             background: #f0f8ff;
             border-right: 4px solid #107c10;
@@ -94,27 +135,6 @@
             font-weight: 600;
             margin-bottom: 8px;
             font-size: 14px;
-        }
-
-        .input-wrapper {
-            position: relative;
-            margin-bottom: 10px;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            font-family: inherit;
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #107c10;
-            box-shadow: 0 0 0 3px rgba(16, 124, 16, 0.1);
         }
 
         textarea {
@@ -309,6 +329,35 @@
             margin-top: 5px;
         }
 
+        .update-banner {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            color: #92400e;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            display: none;
+            text-align: center;
+        }
+
+        .update-banner.show {
+            display: block;
+        }
+
+        .update-banner button {
+            background: #f59e0b;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            width: 100%;
+            font-size: 12px;
+        }
+
         @media (max-width: 480px) {
             .container {
                 padding: 20px;
@@ -328,6 +377,16 @@
 </head>
 <body>
     <div class="container">
+        <div class="install-banner" id="installBanner">
+            📥 ركب التطبيق على جهازك!
+            <button onclick="installApp()">تثبيت الآن</button>
+        </div>
+
+        <div class="update-banner" id="updateBanner">
+            🔄 تحديث جديد متاح!
+            <button onclick="updateApp()">تحديث</button>
+        </div>
+
         <div class="header">
             <div class="xbox-logo">🎮</div>
             <h1>فحص أسماء Xbox</h1>
@@ -342,7 +401,7 @@
 
         <div class="form-group">
             <label for="usernames">أدخل أسماء المستخدمين:</label>
-            <textarea id="usernames" placeholder="أدخل كل اسم في سطر منفصل&#10;مثال:&#10;abcd&#10;xy2z&#10;test"></textarea>
+            <textarea id="usernames" placeholder="أدخل كل ا��م في سطر منفصل&#10;مثال:&#10;abcd&#10;xy2z&#10;test"></textarea>
         </div>
 
         <div class="button-group">
@@ -367,15 +426,75 @@
 
     <script>
         let results = [];
+        let deferredPrompt = null;
+
+        // تسجيل Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('✅ Service Worker مسجل بنجاح');
+                        
+                        // التحقق من التحديثات
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    document.getElementById('updateBanner').classList.add('show');
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => console.log('❌ خطأ في تسجيل Service Worker:', error));
+            });
+        }
+
+        // التعامل مع حدث التثبيت
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installBanner').classList.add('show');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ تم تثبيت التطبيق بنجاح!');
+            document.getElementById('installBanner').classList.remove('show');
+            deferredPrompt = null;
+        });
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('✅ المستخدم وافق على التثبيت');
+                    } else {
+                        console.log('❌ المستخدم رفض التثبيت');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+
+        function updateApp() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    registrations.forEach(registration => {
+                        registration.update();
+                    });
+                });
+            }
+            window.location.reload();
+        }
 
         function isValidFormat(username) {
             if (username.length !== 4) return false;
             
             // 4 أحرف فقط
-            if (/^[a-zA-Z]{4}$/.test(username)) return true;
+            if (/^[a-zA-Z]{4}$/i.test(username)) return true;
             
             // 3 حروف + رقم واحد
-            const letters = (username.match(/[a-zA-Z]/g) || []).length;
+            const letters = (username.match(/[a-zA-Z]/gi) || []).length;
             const digits = (username.match(/\d/g) || []).length;
             return letters === 3 && digits === 1;
         }
@@ -465,7 +584,7 @@
             }
 
             let content = 'نتائج فحص أسماء Xbox\n';
-            content += '=' .repeat(40) + '\n\n';
+            content += '='.repeat(40) + '\n\n';
 
             results.forEach(result => {
                 content += `${result.username} ${result.status} ${result.message}\n`;
@@ -487,8 +606,9 @@
             results = [];
         }
 
-        // اختبار سريع عند تحميل الصفحة
-        console.log('تطبيق فحص أسماء Xbox جاهز!');
+        // رسالة الترحيب
+        console.log('🎮 مرحباً بك في تطبيق فحص أسماء Xbox!');
+        console.log('✅ يمكنك الآن تثبيت التطبيق على جهازك');
     </script>
 </body>
 </html>
